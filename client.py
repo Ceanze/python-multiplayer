@@ -13,7 +13,8 @@ def listen():
     global threadRunning
 
     while threadRunning:
-        msg = server.recv(1024).decode()
+        msg, addr = server.recvfrom(1024)
+        msg = msg.decode()
         if msg.find("disconnected") != -1:
             fill, ip = msg.split(";")
             for p in players:
@@ -30,9 +31,14 @@ def listen():
             for clients in ips:
                 p = Player([320, 300])
                 players.append([clients, p])
+        elif msg.find("PING") != -1:
+            print("PING")
+            server.sendto("PING".encode(), addr)
         elif msg.find("P;") != -1:
-            
-            ip, position = msg[2:].split(";")
+            #IP;P;posx/posy
+            #print(msg)
+            ip, fill, position = msg.split(";")
+            #ip, position = msg[2:].split(";")
             pos = position.split("/")
             for p in players:
                 if p[0] == ip:
@@ -58,7 +64,7 @@ class Client:
 
     def update(self, position):
         # Update the server with the players position
-        msg = "P;" + str(position[0]) + "/" + str(position[1])
+        msg = "SA;P;" + str(position[0]) + "/" + str(position[1])
         if self.lastMsg != msg:
             server.sendto(msg.encode(), (self.serverIP, self.port))
         self.lastMsg = msg

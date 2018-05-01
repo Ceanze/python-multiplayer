@@ -4,6 +4,8 @@ import threading
 
 SERVER_RUNNING = True
 
+pingTimer = 0
+
 # create UDP socket and bind to specified port
 serverPort = 8080
 serverSocket = socket(AF_INET, SOCK_DGRAM)
@@ -11,6 +13,7 @@ serverSocket.bind(('', serverPort))
 
 threads = []
 connectedUsers = []
+userPings = []
 
 def removeUser(IP):
     i = 0
@@ -70,10 +73,27 @@ def serverThread():
             userStr = "disconnected;" + clientAddress[0]
             sendToAllUsers(userStr, clientAddress[0])
             sendToOneUser("QUIT", clientAddress[0])
-        elif decodeMsg.find("P;") != -1:
-            modifiedMessage = "P;" + clientAddress[0] + ";"  + decodeMsg[2:] 
+        # elif decodeMsg.find("P;") != -1:
+        #     modifiedMessage = "P;" + clientAddress[0] + ";"  + decodeMsg[2:] 
+        #     sendToAllUsers(modifiedMessage, clientAddress[0])
+         # Send to all except sender
+        elif decodeMsg.find("PING") != -1:
+            end = time.time()
+            end -= pingTimer
+            userPings.append((str(end) +" seconds", clientAddress[0]))   
+        elif decodeMsg.find("SA;") != -1:
+            modifiedMessage = clientAddress[0] + ";"  + decodeMsg[3:]
             sendToAllUsers(modifiedMessage, clientAddress[0])
-            
+        # Send to one
+        elif decodeMsg.find("SO;") != -1:
+            destinationIP, recvMessage = decodeMsg[3:].split(";")
+            sendToOneUser(recvMessage, destinationIP)
+        # Send multiple
+        elif decodeMsg.find("SM;") != -1:
+            ipMsg = decodeMsg[3:].split(";")
+            for n in ipMsg:
+                if n != ipMsg[len(ipMsg) - 1]:
+                    sendToOneUser(n, ipMsg[len(ipMsg) - 1])    
            
     return
 
@@ -89,6 +109,7 @@ if __name__ == '__main__':
     threads.append(t)
     t.start()
 
+    pinged = False
     
     print("Input Thread Running!")
     while SERVER_RUNNING:
@@ -102,7 +123,15 @@ if __name__ == '__main__':
             print(connectedUsers)
         elif msg == "help":
             print(helpMessage)
-        
+        elif msg == "ping":
+            sendToAllUsers("PING")
+            pingTimer = time.time()
+            pinged = True
+
+        if pinged and len(connectedUsers) == len(userPings):
+            print(userPings)
+            pinged = False
+            userPings.clear()
 
     t.join()
 
