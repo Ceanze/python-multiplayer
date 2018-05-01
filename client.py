@@ -29,12 +29,14 @@ def listen():
             ips = msg[4:].split(";")
             for clients in ips:
                 p = Player([320, 300])
-                players.append([clients, p])     
+                players.append([clients, p])
         elif msg.find("P;") != -1:
+            
             ip, position = msg[2:].split(";")
             pos = position.split("/")
             for p in players:
                 if p[0] == ip:
+                    print(msg)
                     p[1].setPosition([int(pos[0]), int(pos[1])])
                     
 
