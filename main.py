@@ -68,6 +68,7 @@ if __name__ == '__main__':
 
         pygame.display.flip()
         pygame.display.update()
+
         if MULTIPLAYER:
             client.update(player.getPosition())
 
