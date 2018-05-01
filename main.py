@@ -31,6 +31,8 @@ if __name__ == '__main__':
     if MULTIPLAYER:
         client = Client("127.0.0.1", 8080)
         client.connect()
+
+    count = 0
     while True:
 
         for event in pygame.event.get():
@@ -39,7 +41,6 @@ if __name__ == '__main__':
                     client.quit()
                 pygame.quit()
                 sys.exit()
-
             keys = pygame.key.get_pressed()
             if keys[K_SPACE]:
                 player.jump()
@@ -67,7 +68,6 @@ if __name__ == '__main__':
 
         pygame.display.flip()
         pygame.display.update()
-        player.update()
         if MULTIPLAYER:
             client.update(player.getPosition())
 

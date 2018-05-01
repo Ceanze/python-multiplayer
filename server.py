@@ -47,20 +47,29 @@ def serverThread():
                     exists = True
             
             if exists == False:
-                print("User connect:", clientAddress)
+                print("User connected:", clientAddress)
                 connectedUsers.append(clientAddress)
+
                 userStr = "connected;" + clientAddress[0]
                 sendToAllUsers(userStr,  clientAddress[0])
+
+                #Update connecting users about current users on server
                 allUsers = "ALL;"
-                for ip in connectedUsers:
-                    if ip[0] != clientAddress[0]:
-                        allUsers += ip[0]
+                #Check if only one person
+                if len(connectedUsers) != 1:
+                    for ip in connectedUsers:
+                        if ip[0] != clientAddress[0]:
+                            allUsers += ip[0] + ";"    
+                    allUsers = allUsers[:-1]
+
                 if allUsers != "ALL;":
                     sendToOneUser(allUsers, clientAddress[0])
         elif decodeMsg.find("QUIT") != -1:
+            print("User disconnected:", clientAddress)
             removeUser(clientAddress[0])
             userStr = "disconnected;" + clientAddress[0]
             sendToAllUsers(userStr, clientAddress[0])
+            sendToOneUser("QUIT", clientAddress[0])
         elif decodeMsg.find("P;") != -1:
             modifiedMessage = "P;" + clientAddress[0] + ";"  + decodeMsg[2:] 
             sendToAllUsers(modifiedMessage, clientAddress[0])
@@ -72,7 +81,7 @@ helpMessage = '''All commands:
                     quit - turn server off
                     list - gives a list of all connected users
                     '''
-                    
+
 if __name__ == '__main__':
     print ("The UDP server is ready to recieve")
 
@@ -85,6 +94,7 @@ if __name__ == '__main__':
     while SERVER_RUNNING:
         msg = input("Input:")
         if msg == "quit":
+            sendToAllUsers("QUIT")
             SERVER_RUNNING = False
             print("Shutting down...")
             serverSocket.sendto(str("TURN OFF").encode(), ('127.0.0.1', 8080))
