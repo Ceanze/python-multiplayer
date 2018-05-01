@@ -70,10 +70,21 @@ def serverThread():
             userStr = "disconnected;" + clientAddress[0]
             sendToAllUsers(userStr, clientAddress[0])
             sendToOneUser("QUIT", clientAddress[0])
-        elif decodeMsg.find("P;") != -1:
-            modifiedMessage = "P;" + clientAddress[0] + ";"  + decodeMsg[2:] 
+        # Send to all except sender
+        elif decodeMsg.find("SA;") != -1:
+            modifiedMessage = clientAddress[0] + ";"  + decodeMsg
             sendToAllUsers(modifiedMessage, clientAddress[0])
-            
+        # Send to one
+        elif decodeMsg.find("SO;") != -1:
+            destinationIP, recvMessage = decodeMsg[3:].split(";")
+            sendToOneUser(recvMessage, destinationIP)
+        # Send multiple
+        elif decodeMsg.find("SM;") != -1:
+            ipMsg = decodeMsg[3:].split(";")
+            for n in ipMsg:
+                if n != ipMsg[len(ipMsg) - 1]:
+                    sendToOneUser(n, ipMsg[len(ipMsg) - 1])
+        
            
     return
 
