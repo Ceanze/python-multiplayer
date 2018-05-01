@@ -36,6 +36,10 @@ def listen():
             for p in players:
                 if p[0] == ip:
                     p[1].setPosition([int(pos[0]), int(pos[1])])
+        elif msg.find("QUIT") != -1:
+            print("Server shutdown")
+            threadRunning = False
+            return
                     
 
     return
@@ -65,10 +69,11 @@ class Client:
         print("Started thread\n")
 
     def quit(self):
+        global threadRunning
         server.sendto("QUIT".encode(), (self.serverIP, self.port))
-        server.close()
         threadRunning = False
         self.t.join()
+        server.close()
 
     def recv(self):
         return server.recv(1024)
