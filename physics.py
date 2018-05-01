@@ -34,6 +34,7 @@ class Physics:
         self.isJumping = True
         if self.position[1] == 470:
             self.acceleration[1] -= self.jumpSpeed
+            self.position[1] -= 1
 
     def getPosition(self):
         return self.position
