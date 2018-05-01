@@ -29,8 +29,7 @@ def listen():
             ips = msg[4:].split(";")
             for clients in ips:
                 p = Player([320, 300])
-                players.append([clients, p])
-                
+                players.append([clients, p])     
         elif msg.find("P;") != -1:
             ip, position = msg[2:].split(";")
             pos = position.split("/")
@@ -47,14 +46,16 @@ class Client:
     def __init__(self, serverIP, port):
         self.serverIP = serverIP
         self.port = port      
+        self.lastMsg = ""
 
 
 
     def update(self, position):
         # Update the server with the players position
         msg = "P;" + str(position[0]) + "/" + str(position[1])
-        server.sendto(msg.encode(), (self.serverIP, self.port))
-
+        if self.lastMsg != msg:
+            server.sendto(msg.encode(), (self.serverIP, self.port))
+        self.lastMsg = msg
 
     def connect(self):
         # Connect to the server by sending a NEW message to it.

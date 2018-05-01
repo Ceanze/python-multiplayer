@@ -8,7 +8,7 @@ from player import *
 
 from pygame.locals import *
 
-MULTIPLAYER = False
+MULTIPLAYER = True
 
 # Pygame things
 FPS = 60
@@ -29,7 +29,7 @@ if __name__ == '__main__':
     color = (0, 0, 0)
     player = Player([320, 300])
     if MULTIPLAYER:
-        client = Client("80.78.218.133", 8080)
+        client = Client("127.0.0.1", 8080)
         client.connect()
     while True:
 

@@ -68,7 +68,11 @@ def serverThread():
            
     return
 
-
+helpMessage = '''All commands:
+                    quit - turn server off
+                    list - gives a list of all connected users
+                    '''
+                    
 if __name__ == '__main__':
     print ("The UDP server is ready to recieve")
 
@@ -86,6 +90,8 @@ if __name__ == '__main__':
             serverSocket.sendto(str("TURN OFF").encode(), ('127.0.0.1', 8080))
         elif msg == "list":
             print(connectedUsers)
+        elif msg == "help":
+            print(helpMessage)
         
 
     t.join()
